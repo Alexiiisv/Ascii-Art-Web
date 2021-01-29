@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	LocalhostPort = "localhost:4000"
+	LocalhostPort = ":8080"
 )
 
 type PageData struct {
@@ -27,6 +27,19 @@ type PageData struct {
 func HomePage(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("index.html")
+	if err != nil {
+		fmt.Println("Internal Server Error", err)
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println("Internal Server Error", err)
+	}
+}
+
+//HomePage fzeiuh
+func testPage(w http.ResponseWriter, r *http.Request) {
+
+	tmpl, err := template.ParseFiles("site/test.html")
 	if err != nil {
 		fmt.Println("Internal Server Error", err)
 	}
@@ -61,9 +74,11 @@ func ResultPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println("Please connect to", "\u001b[31m", LocalhostPort, "\u001b[0m")
+	fmt.Println("Please connect to", "\u001b[31m localhost", LocalhostPort, "\u001b[0m")
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))) // Join Assets Directory to the server
+	http.Handle("/site/", http.StripPrefix("/site/", http.FileServer(http.Dir("site"))))       // Join Assets Directory to the server
 	http.HandleFunc("/", HomePage)                                                             // set router
+	http.HandleFunc("/test", testPage)
 	http.HandleFunc("/ascii-art", ResultPage)
 	err := http.ListenAndServe(LocalhostPort, nil) // set listen port
 	if err != nil {
